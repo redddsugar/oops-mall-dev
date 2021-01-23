@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.oops.mapper.ItemsMapperCustom" >
+
+  <select id="queryItemComments" parameterType="Map" resultType="com.oops.pojo.vo.ItemCommentVO">
+    SELECT
+	ic.comment_level AS commentLevel,
+	ic.content AS content,
+	ic.sepc_name AS specName,
+	ic.created_time AS createdTIme,
+	u.face AS UserFace,
+	u.nickname AS nickName 
+FROM
+	items_comments ic
+	LEFT JOIN users u ON ic.user_id = u.id
+	WHERE 
+	    ic.item_id=#{paramsMap.itemId}
+	    <if test="paramsMap.level != null and paramsMap.level != ''"></if>
+	AND ic.comment_level =  #{paramsMap.level}
+  </select>
+	<select id="searchItems" parameterType="Map" resultType="com.oops.pojo.vo.SearchItemsVO">
+		SELECT
+		i.id as itemId,
+		i.item_name as itemName,
+		i.sell_counts as sellCounts,
+		ii.url as imgUrl,
+		tempSpec.price_discount as price
+		FROM
+		items i
+		LEFT JOIN
+		items_img ii
+		on
+		i.id = ii.item_id
+		LEFT JOIN
+		(SELECT item_id,MIN(price_discount) as price_discount from items_spec GROUP BY item_id) tempSpec
+		on
+		i.id = tempSpec.item_id
+		WHERE
+		ii.is_main = 1
+		<if test=" paramsMap.keywords != null and paramsMap.keywords != '' ">
+			AND i.item_name like '%${paramsMap.keywords}%'
+		</if>
+		order by
+		-- 		k:默认
+		-- 		c:销量
+		-- 		p:价格
+-- 		&quot;   ‘转义
+		<choose>
+			<when test=" paramsMap.sort == &quot;c&quot; ">
+				i.sell_counts desc
+			</when>
+			<when test=" paramsMap.sort == &quot;p&quot; ">
+				tempSpec.price_discount asc
+			</when>
+			<otherwise>
+				i.item_name asc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="searchItemsByThrCat" parameterType="Map" resultType="com.oops.pojo.vo.SearchItemsVO">
+		SELECT
+		i.id as itemId,
+		i.item_name as itemName,
+		i.sell_counts as sellCounts,
+		ii.url as imgUrl,
+		tempSpec.price_discount as price
+		FROM
+		items i
+		LEFT JOIN
+		items_img ii
+		on
+		i.id = ii.item_id
+		LEFT JOIN
+		(SELECT item_id,MIN(price_discount) as price_discount from items_spec GROUP BY item_id) tempSpec
+		on
+		i.id = tempSpec.item_id
+		WHERE
+		ii.is_main = 1
+		and
+		i.cat_id=#{paraMaps.catId}
+		order by
+		-- 		k:默认
+		-- 		c:销量
+		-- 		p:价格
+		-- 		&quot;   ‘转义
+		<choose>
+			<when test=" paramsMap.sort == &quot;c&quot; ">
+				i.sell_counts desc
+			</when>
+			<when test=" paramsMap.sort == &quot;p&quot; ">
+				tempSpec.price_discount asc
+			</when>
+			<otherwise>
+				i.item_name asc
+			</otherwise>
+		</choose>
+	</select>
+</mapper>
