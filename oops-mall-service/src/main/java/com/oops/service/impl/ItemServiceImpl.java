@@ -8,15 +8,14 @@ import com.oops.pojo.*;
 import com.oops.pojo.vo.CommentLevelCountVO;
 import com.oops.pojo.vo.ItemCommentVO;
 import com.oops.pojo.vo.SearchItemsVO;
+import com.oops.pojo.vo.ShopcartVO;
 import com.oops.service.ItemService;
 import com.oops.utils.PagedGridResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author L-N
@@ -116,6 +115,15 @@ public class ItemServiceImpl implements ItemService {
         PageHelper.startPage(page, pageSize);
         List<SearchItemsVO> list = itemsMapperCustom.searchItems(map);
         return setterPagedGrid(list, page);
+    }
+
+    @Override
+    public List<ShopcartVO> queryItemsBySpecIds(String specIds) {
+//        String转List
+        String[] ids = specIds.split(",");
+        List<String> idList = new ArrayList<>();
+        Collections.addAll(idList, ids);
+        return itemsMapperCustom.queryItemsBySpecIds(idList);
     }
 
     private Integer getCommentCounts(String itemId, Integer level) {

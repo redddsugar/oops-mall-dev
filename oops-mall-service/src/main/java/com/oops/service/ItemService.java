@@ -5,6 +5,7 @@ import com.oops.pojo.ItemsImg;
 import com.oops.pojo.ItemsParam;
 import com.oops.pojo.ItemsSpec;
 import com.oops.pojo.vo.CommentLevelCountVO;
+import com.oops.pojo.vo.ShopcartVO;
 import com.oops.utils.PagedGridResult;
 
 import java.util.List;
@@ -34,4 +35,9 @@ public interface ItemService {
 
     PagedGridResult searchItemsByThrCat(String catId,String sort,
                                         Integer page, Integer pageSize);
+
+    /**
+     * 根据商品规格查询最新的购物车商品数据
+     */
+    List<ShopcartVO> queryItemsBySpecIds(String specIds);
 }

@@ -7,6 +7,7 @@ import com.oops.pojo.ItemsParam;
 import com.oops.pojo.ItemsSpec;
 import com.oops.pojo.vo.CommentLevelCountVO;
 import com.oops.pojo.vo.ItemInfoVO;
+import com.oops.pojo.vo.ShopcartVO;
 import com.oops.service.ItemService;
 import com.oops.utils.OopsResult;
 import com.oops.utils.PagedGridResult;
@@ -15,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -106,5 +106,16 @@ public class ItemController {
         }
         PagedGridResult grid = itemService.searchItemsByThrCat(catId, sort, page, pageSize);
         return OopsResult.ok(grid);
+    }
+
+    //用户长时间未登录，刷新购物车商品数据
+    @GetMapping("/refresh")
+    public OopsResult refreshCart(@RequestParam String itemSpecIds) {
+        if (StringUtils.isBlank(itemSpecIds)) {
+            return OopsResult.errorMsg("");
+        }
+
+        List<ShopcartVO> list = itemService.queryItemsBySpecIds(itemSpecIds);
+        return OopsResult.ok(list);
     }
 }
