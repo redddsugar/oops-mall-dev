@@ -3,6 +3,7 @@ package com.oops.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.oops.enums.CommentLevel;
+import com.oops.enums.YesOrNo;
 import com.oops.mapper.*;
 import com.oops.pojo.*;
 import com.oops.pojo.vo.CommentLevelCountVO;
@@ -13,6 +14,8 @@ import com.oops.service.ItemService;
 import com.oops.utils.PagedGridResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.*;
@@ -124,6 +127,33 @@ public class ItemServiceImpl implements ItemService {
         List<String> idList = new ArrayList<>();
         Collections.addAll(idList, ids);
         return itemsMapperCustom.queryItemsBySpecIds(idList);
+    }
+
+    @Override
+    public ItemsSpec queryItemSpecById(String itemSpecId) {
+        return itemsSpecMapper.selectByPrimaryKey(itemSpecId);
+    }
+
+    @Override
+    public String queryItemMainImgById(String itemId) {
+        ItemsImg itemsImg = new ItemsImg();
+        itemsImg.setItemId(itemId);
+        itemsImg.setIsMain(YesOrNo.YES.type);
+        ItemsImg result = itemsImgMapper.selectOne(itemsImg);
+        return result != null ? result.getUrl() : "";
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void decreaseItemSpecStock(String specId, int buyCounts) {
+
+        // synchronized 不推荐使用，集群下无用，性能低下
+        // 锁数据库: 不推荐，导致数据库性能低下
+        // 分布式锁 zookeeper redis
+        int result = itemsMapperCustom.decreaseItemSpecStock(specId, buyCounts);
+        if (result != 1) {
+            throw new RuntimeException("订单创建失败，原因：库存不足!");
+        }
     }
 
     private Integer getCommentCounts(String itemId, Integer level) {

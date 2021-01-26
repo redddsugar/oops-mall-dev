@@ -38,6 +38,19 @@ public interface ItemService {
 
     /**
      * 根据商品规格查询最新的购物车商品数据
+     * @param specIds
+     * @return
      */
     List<ShopcartVO> queryItemsBySpecIds(String specIds);
+
+    ItemsSpec queryItemSpecById(String itemSpecId);
+
+    String queryItemMainImgById(String itemId);
+
+    /**
+     * 减库存
+     * @param specId 商品规格id
+     * @param buyCounts  购买数量
+     */
+    void decreaseItemSpecStock(String specId, int buyCounts);
 }
